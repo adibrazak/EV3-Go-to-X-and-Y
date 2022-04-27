@@ -1,0 +1,399 @@
+#include <ev3.h>
+#include <math.h>
+#include <stdio.h>
+#define PI 3.141592654
+
+char str[20];
+
+//rotate factor variable
+//line restricted movement rotation factor
+double rf =3.6;
+//shortest movement rotation factor
+double rr =3.3;
+
+//move factor variable
+double mf =20.90;
+
+//initialize mode value
+int mode;
+
+//declare counter
+int i;
+
+//declare motor rotation angle
+double r;
+
+//target coordinate value
+double a, b;
+double c, d;
+
+//hypotenuse
+double h;
+//angle needed to be rotated in shortest path
+double e;
+
+//choose robot movement type
+int moveType()
+{
+	LcdClean();
+	LcdTextf(1, 1, 15, "Choose Movement Type");
+	Wait(50);
+	LcdTextf(1, 1, 45, "Left Button");
+	Wait(50);
+	LcdTextf(1, 30, 65, "Line Restricted");
+	Wait(50);
+	LcdTextf(1, 1, 85, "Right Button");
+	Wait(50);
+	LcdTextf(1, 30, 105, "Shortest Path");
+	Wait(50);
+
+	//keep looping until user select movement type
+	while(ButtonIsDown(BTNLEFT)==0 || ButtonIsDown(BTNRIGHT)==0)
+	{
+		if(ButtonIsDown(BTNLEFT)==1)
+		{
+			mode = 0;
+			Wait(250);
+			break;
+		}
+		else if(ButtonIsDown(BTNRIGHT)==1)
+		{
+			mode = 1;
+			Wait(250);
+			break;
+		}
+
+	Wait(50);
+	}
+
+	return mode;
+}
+
+void moveLineRestricted()
+{
+
+	int yCoordinate()
+	{
+		int y=0;
+
+		while(1)
+		{
+		if(ButtonIsDown(BTNUP) == 1)
+		 {
+			y=y+1;
+		     while(ButtonIsDown(BTNUP) == 1)
+		     {
+		    	 y = y;
+		     }
+		  }
+		  else if(ButtonIsDown(BTNDOWN) == 1)
+		  {
+			  y=y-1;
+		     while(ButtonIsDown(BTNDOWN) == 1)
+		     {
+		    	 y = y;
+		     }
+		  }
+
+		if(y>3)
+		{
+			y=3;
+		}
+		else if(y<0)
+		{
+			y=0;
+		}
+
+		LcdClean();
+		sprintf(str,"Coordinate Y : %d", y);
+		LcdTextf(1, 20, 60, str);
+
+			if(ButtonIsDown(BTNCENTER) == 1)
+			 {
+			  break;
+			 }
+			}
+		return y;
+		}
+
+
+
+	int xCoordinate()
+	{
+
+
+		int x=0;
+
+		while(1)
+		{
+		if(ButtonIsDown(BTNUP) == 1)
+		 {
+			x=x+1;
+		     while(ButtonIsDown(BTNUP) == 1)
+		     {
+		    	 x = x;
+		     }
+		  }
+		  else if(ButtonIsDown(BTNDOWN) == 1)
+		  {
+			  x=x-1;
+		     while(ButtonIsDown(BTNDOWN) == 1)
+		     {
+		    	 x = x;
+		     }
+		  }
+
+		if(x>4)
+		{
+			x=4;
+		}
+		else if(x<0)
+		{
+			x=0;
+		}
+
+		LcdClean();
+		sprintf(str,"Coordinate X : %d", x);
+		LcdTextf(1, 20, 60, str);
+
+			if(ButtonIsDown(BTNCENTER) == 1)
+			 {
+			  break;
+			 }
+			}
+		return x;
+		}
+
+	//a = input x coordinate
+	a= xCoordinate();
+	Wait(250);
+
+	//b = input y coordinate
+	b= yCoordinate();
+	Wait(250);
+
+	//coordinate not involve '0' value event
+	if(a>0 && b>0)
+	{
+		Wait(2000);
+		//move y
+		r = b*mf*30; //multiply moving factor
+		RotateMotorEx(OUT_BC, 60, r, 0 , true, true);
+		Wait(2000);
+
+		//turn 90
+		RotateMotorEx(OUT_BC, -40, 90*rf, 200 , true, true);
+		Wait(1000);
+
+		//move x
+		r = a*mf*30; //multiply moving factor
+		RotateMotorEx(OUT_BC, 60, r, 0 , true, true);
+		Wait(1000);
+	}
+	else if(a==0 && b>0)
+	{
+		Wait(2000);
+		//move y
+		r = b*mf*30; //multiply moving factor
+		RotateMotorEx(OUT_BC, 60, r, 0 , true, true);
+		Wait(1000);
+	}
+	else if(a>0 && b==0)
+	{
+		Wait(2000);
+		//turn 90
+		RotateMotorEx(OUT_BC, -40, 90*rf, 200 , true, true);
+		Wait(1000);
+
+		//move x
+		r = a*mf*30; //multiply moving factor
+		RotateMotorEx(OUT_BC, 60, r, 0 , true, true);
+		Wait(1000);
+	}
+	else if(a==0 && b==0)
+	{
+		Wait(1000);
+	}
+
+	}
+
+
+void moveShortestPath()
+{
+	int yCoordinate()
+	{
+		int y=0;
+
+		while(1)
+		{
+		if(ButtonIsDown(BTNUP) == 1)
+		 {
+			y=y+1;
+		     while(ButtonIsDown(BTNUP) == 1)
+		     {
+		    	 y = y;
+		     }
+		  }
+		  else if(ButtonIsDown(BTNDOWN) == 1)
+		  {
+			  y=y-1;
+		     while(ButtonIsDown(BTNDOWN) == 1)
+		     {
+		    	 y = y;
+		     }
+
+		  }
+
+		if(y>3)
+		{
+			y=3;
+		}
+		else if(y<0)
+		{
+			y=0;
+		}
+
+		LcdClean();
+		sprintf(str,"Coordinate Y : %d", y);
+		LcdTextf(1, 20, 60, str);
+
+			if(ButtonIsDown(BTNCENTER) == 1)
+			 {
+			  break;
+			 }
+			}
+		return y;
+		}
+
+
+
+	int xCoordinate()
+	{
+
+
+		int x=0;
+
+		while(1){
+		if(ButtonIsDown(BTNUP) == 1)
+		 {
+			x=x+1;
+		     while(ButtonIsDown(BTNUP) == 1)
+		     {
+		    	 x = x;
+		     }
+		  }
+		  else if(ButtonIsDown(BTNDOWN) == 1)
+		  {
+			  x=x-1;
+		     while(ButtonIsDown(BTNDOWN) == 1)
+		     {
+		    	 x = x;
+		     }
+
+
+		  }
+
+		if(x>4)
+		{
+			x=4;
+		}
+		else if(x<0)
+		{
+			x=0;
+		}
+
+		LcdClean();
+		sprintf(str,"Coordinate X : %d", x);
+		LcdTextf(1, 20, 60, str);
+
+			if(ButtonIsDown(BTNCENTER) == 1)
+			 {
+			  break;
+			 }
+			}
+		return x;
+		}
+
+
+	//c = input x coordinate
+	c= xCoordinate();
+	Wait(250);
+
+	//d = input y coordinate
+	d= yCoordinate();
+	Wait(250);
+
+
+	e=atan(c/d);
+	Wait(250);
+	e = (e * 180) / PI;
+	Wait(250);
+	h=sqrt((c*c)+(d*d));
+	Wait(250);
+
+	//coordinate not involve '0' value event
+	if(c>0 && d>0)
+	{
+		Wait(2000);
+		//turn to destination angle
+		RotateMotorEx(OUT_BC, -50, e*rr, 200 , true, true);
+		Wait(1000);
+
+		//move to destination
+		r = h*mf*30; //multiply moving factor
+		RotateMotorEx(OUT_BC, 50, r, 0 , true, true);
+		Wait(1000);
+	}
+	else if(c==0 && d>0)
+	{
+		Wait(2000);
+		//move y
+		r = d*mf*30; //multiply moving factor
+		RotateMotorEx(OUT_BC, 50, r, 0 , true, true);
+		Wait(1000);
+	}
+	else if(c>0 && d==0)
+	{
+		Wait(2000);
+		//turn 90
+		RotateMotorEx(OUT_BC, -50, 90*rr, 200 , true, true);
+		Wait(1000);
+
+		//move x
+		r = c*mf*30; //multiply moving factor
+		RotateMotorEx(OUT_BC, 50, r, 0 , true, true);
+		Wait(1000);
+	}
+	else if(c==0 && d==0)
+	{
+		Wait(1000);
+	}
+
+}
+
+
+int main(void)
+{
+	//mode selection value
+	int modeSelect = moveType();
+	Wait(250);
+
+	if(modeSelect==0){
+		LcdClean();
+		LcdTextf(1, 10, 30, "You Select --->");
+		LcdTextf(1, 10, 60, "Line Restricted");
+		LcdTextf(1, 10, 80, "Movement Type");
+		Wait(2000);
+		moveLineRestricted();
+	}
+	else if(modeSelect==1){
+		LcdClean();
+		LcdTextf(1, 10, 30, "You Select --->");
+		LcdTextf(1, 10, 60, "Shortest Path");
+		LcdTextf(1, 10, 80, "Movement Type");
+		Wait(2000);
+		moveShortestPath();
+		}
+
+	return 0;
+}
