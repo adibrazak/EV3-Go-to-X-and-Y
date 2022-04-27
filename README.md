@@ -6,7 +6,7 @@ Robot was programmed as follows:
 1. Request user the movement type to be used; either line restricted movement or shortest path movement. 
 2. Request user the target position by getting the x value and y value as the target coordinate (x,y).
 3. Up button will increase input value, Down button will decrease input value. 
-4. The value for x and y are restricted based on the predefined map, which in this case 0~4 for x, and 0~3 for y.
+4. The value for x and y are restricted based on the predefined map, which in this case 0 to4 for x, and 0 to 3 for y.
 5. EV3 will move to user target position with the chosen movement type.
 
 
